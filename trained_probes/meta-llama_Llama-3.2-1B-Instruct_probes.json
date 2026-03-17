@@ -1,0 +1,85 @@
+{
+  "model": "/drive1/xiacong/models/meta-llama/Llama-3.2-1B-Instruct",
+  "method": "logistic_regression",
+  "num_probes": 6,
+  "probes": {
+    "harmless": {
+      "category": "harmless",
+      "description": "Probe for harmless (trained on real data)",
+      "layer_idx": 7,
+      "hidden_size": 2048,
+      "bias": 0.004014019096274608,
+      "accuracy": 0.5872,
+      "f1_score": 0.5876947662804635,
+      "auc_roc": 0.61867548,
+      "cv_mean": 0.5670999999999999,
+      "cv_std": 0.007618398781896353,
+      "method": "logistic_regression"
+    },
+    "helpful": {
+      "category": "helpful",
+      "description": "Probe for helpful (trained on real data)",
+      "layer_idx": 10,
+      "hidden_size": 2048,
+      "bias": -0.0216491694733556,
+      "accuracy": 0.5689,
+      "f1_score": 0.5693736889421637,
+      "auc_roc": 0.59694308,
+      "cv_mean": 0.5429,
+      "cv_std": 0.010408650248711421,
+      "method": "logistic_regression"
+    },
+    "jigsaw_toxic": {
+      "category": "jigsaw_toxic",
+      "description": "Probe for jigsaw_toxic (trained on real data)",
+      "layer_idx": 10,
+      "hidden_size": 2048,
+      "bias": 0.018620927305466824,
+      "accuracy": 0.8,
+      "f1_score": 0.75,
+      "auc_roc": 0.8,
+      "cv_mean": 0.8248000000000001,
+      "cv_std": 0.004489988864128723,
+      "method": "logistic_regression"
+    },
+    "sentiment": {
+      "category": "sentiment",
+      "description": "Probe for sentiment (trained on real data)",
+      "layer_idx": 7,
+      "hidden_size": 2048,
+      "bias": -0.03571117809429106,
+      "accuracy": 0.8593,
+      "f1_score": 0.8590321611061016,
+      "auc_roc": 0.9193538000000001,
+      "cv_mean": 0.8305999999999999,
+      "cv_std": 0.008392854103342937,
+      "method": "logistic_regression"
+    },
+    "sycophancy": {
+      "category": "sycophancy",
+      "description": "Probe for sycophancy (trained on real data)",
+      "layer_idx": 9,
+      "hidden_size": 2048,
+      "bias": -0.01510022839758976,
+      "accuracy": 0.9919,
+      "f1_score": 0.9918975692707812,
+      "auc_roc": 0.9987929599999998,
+      "cv_mean": 0.9848000000000001,
+      "cv_std": 0.0019899748742132463,
+      "method": "logistic_regression"
+    },
+    "toxicity": {
+      "category": "toxicity",
+      "description": "Probe for toxicity (trained on real data)",
+      "layer_idx": 12,
+      "hidden_size": 2048,
+      "bias": 0.09917977127983775,
+      "accuracy": 0.8665,
+      "f1_score": 0.8696925329428989,
+      "auc_roc": 0.92835108,
+      "cv_mean": 0.8445,
+      "cv_std": 0.004438468204234413,
+      "method": "logistic_regression"
+    }
+  }
+}

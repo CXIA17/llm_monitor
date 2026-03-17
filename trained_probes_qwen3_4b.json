@@ -1,0 +1,72 @@
+{
+  "model": "/drive1/xiacong/models/Qwen/Qwen3-4B",
+  "method": "logistic_regression",
+  "num_probes": 5,
+  "probes": {
+    "harmless": {
+      "category": "harmless",
+      "description": "Probe for harmless (trained on real data)",
+      "layer_idx": 18,
+      "hidden_size": 2560,
+      "bias": -0.0017495036024082597,
+      "accuracy": 0.5811,
+      "f1_score": 0.5832255496965476,
+      "auc_roc": 0.6085971,
+      "cv_mean": 0.5414000000000001,
+      "cv_std": 0.007624959016283334,
+      "method": "logistic_regression"
+    },
+    "toxicity": {
+      "category": "toxicity",
+      "description": "Probe for toxicity (trained on real data)",
+      "layer_idx": 18,
+      "hidden_size": 2560,
+      "bias": 0.06827838728917536,
+      "accuracy": 0.867,
+      "f1_score": 0.8712487899322362,
+      "auc_roc": 0.9270832000000001,
+      "cv_mean": 0.8391,
+      "cv_std": 0.0030724582991474582,
+      "method": "logistic_regression"
+    },
+    "sycophancy": {
+      "category": "sycophancy",
+      "description": "Probe for sycophancy (trained on real data)",
+      "layer_idx": 18,
+      "hidden_size": 2560,
+      "bias": 0.026477529836773782,
+      "accuracy": 0.9892,
+      "f1_score": 0.9891761876127481,
+      "auc_roc": 0.9979745200000001,
+      "cv_mean": 0.9836,
+      "cv_std": 0.002800000000000002,
+      "method": "logistic_regression"
+    },
+    "sentiment": {
+      "category": "sentiment",
+      "description": "Probe for sentiment (trained on real data)",
+      "layer_idx": 18,
+      "hidden_size": 2560,
+      "bias": -0.060617026343862734,
+      "accuracy": 0.8691,
+      "f1_score": 0.8678445229681979,
+      "auc_roc": 0.92371028,
+      "cv_mean": 0.8403,
+      "cv_std": 0.0062657800791282164,
+      "method": "logistic_regression"
+    },
+    "helpful": {
+      "category": "helpful",
+      "description": "Probe for helpful (trained on real data)",
+      "layer_idx": 18,
+      "hidden_size": 2560,
+      "bias": -0.01002348336445232,
+      "accuracy": 0.57,
+      "f1_score": 0.5708582834331337,
+      "auc_roc": 0.60056104,
+      "cv_mean": 0.5444,
+      "cv_std": 0.0025179356624028576,
+      "method": "logistic_regression"
+    }
+  }
+}
