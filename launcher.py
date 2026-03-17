@@ -251,7 +251,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="LLM Monitor Launcher")
     parser.add_argument("--model", default="Qwen_Qwen2.5-0.5B-Instruct",
                         help="Model name for both dashboards")
-    parser.add_argument("--model-dir", default="/drive1/xiacong/models",
+    parser.add_argument("--model-dir", default=os.environ.get("MODEL_DIR", "models"),
                         help="Directory containing local models")
     parser.add_argument("--device", default="cuda:0",
                         help="Device for model inference")

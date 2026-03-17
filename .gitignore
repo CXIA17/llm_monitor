@@ -1,4 +1,24 @@
+# Python
 __pycache__/
-*.pyc
-.claude/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment & secrets
+.env
+*.env.local
 model_download.py
+
+# IDE / Claude
+.claude/
+.vscode/
+.idea/
+
+# Data (large files)
+*.pkl
+*.pickle
+probe_real_dataset/
+
+# Models (never commit)
+models/

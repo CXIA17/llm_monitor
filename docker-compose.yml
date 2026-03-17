@@ -7,7 +7,7 @@ services:
       - "8000:8000"   # Launcher (serves court + dashboard as sub-apps)
     volumes:
       # Mount your model directory from the host
-      - /drive1/xiacong/models:/models:ro
+      - ${MODEL_DIR:-./models}:/models:ro
       # Persist experiment data across restarts
       - ./court_experiments.pkl:/app/court_experiments.pkl
       - ./dashboard_experiments.pkl:/app/dashboard_experiments.pkl

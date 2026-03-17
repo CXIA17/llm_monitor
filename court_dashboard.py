@@ -388,7 +388,7 @@ class CourtState:
     
     # Model management
     available_models: List[str] = field(default_factory=list)
-    model_dir: str = "/drive1/xiacong/models"
+    model_dir: str = "models"
     
     # Errors
     initialization_errors: List[str] = field(default_factory=list)
@@ -795,7 +795,7 @@ async def startup():
     
     model_name = os.environ.get("COURT_MODEL", "Qwen_Qwen2.5-0.5B-Instruct")
     device = os.environ.get("COURT_DEVICE", "cuda:0" if torch.cuda.is_available() else "cpu")
-    model_dir = os.environ.get("COURT_MODEL_DIR", "/drive1/xiacong/models")
+    model_dir = os.environ.get("COURT_MODEL_DIR", os.environ.get("MODEL_DIR", "models"))
     
     state.model_name = model_name
     state.device = device
@@ -4542,7 +4542,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="US Federal Court Dashboard v2")
     parser.add_argument("--model", default="Qwen_Qwen2.5-0.5B-Instruct", 
                        help="Model name (folder name in model-dir, or HuggingFace ID)")
-    parser.add_argument("--model-dir", default="/drive1/xiacong/models",
+    parser.add_argument("--model-dir", default=os.environ.get("MODEL_DIR", "models"),
                        help="Directory containing local models")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--port", type=int, default=8000)

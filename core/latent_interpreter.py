@@ -333,7 +333,7 @@ class LatentInterpreter:
         judge_tokenizer=None,
         device: str = "cuda:0",
         judge_model_name: str = None,
-        model_dir: str = "/drive1/xiacong/models",
+        model_dir: str = None,
     ):
         """
         Args:

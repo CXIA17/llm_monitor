@@ -87,7 +87,7 @@ docker compose up
 | Argument | Default | Description |
 |----------|---------|-------------|
 | `--model` | `Qwen_Qwen2.5-0.5B-Instruct` | Model name (directory name under model-dir) |
-| `--model-dir` | `/drive1/xiacong/models` | Directory containing local models |
+| `--model-dir` | `models` (or `$MODEL_DIR`) | Directory containing local models |
 | `--device` | `cuda:0` | Device for inference (`cuda:N` or `cpu`) |
 | `--port` | `8000` | Server port |
 | `--host` | `0.0.0.0` | Server host |
