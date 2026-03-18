@@ -1,5 +1,5 @@
 {
-  "model": "/drive1/xiacong/models/google/gemma-3-1b-it",
+  "model": "google/gemma-3-1b-it",
   "method": "logistic_regression",
   "num_probes": 6,
   "probes": {

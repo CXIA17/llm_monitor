@@ -1,5 +1,5 @@
 {
-  "model": "/drive1/xiacong/models/Qwen/Qwen2.5-0.5B-Instruct",
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
   "method": "logistic_regression",
   "num_probes": 6,
   "probes": {

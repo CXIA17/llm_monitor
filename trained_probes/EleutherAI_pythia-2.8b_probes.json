@@ -1,5 +1,5 @@
 {
-  "model": "/drive1/xiacong/models/EleutherAI/pythia-2.8b",
+  "model": "EleutherAI/pythia-2.8b",
   "method": "logistic_regression",
   "num_probes": 6,
   "probes": {

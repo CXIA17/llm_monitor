@@ -6,7 +6,7 @@
 #
 # Run (GPU, models mounted from host):
 #   docker run --gpus all -p 8000:8000 \
-#     -v /drive1/xiacong/models:/models \
+#     -v /path/to/models:/models \
 #     llm-monitor --model Qwen_Qwen3-4B --device cuda:0
 #
 # Run (CPU / simulated mode, no model mount):

@@ -1,5 +1,5 @@
 {
-  "model": "/drive1/xiacong/models/meta-llama/Llama-3.2-1B-Instruct",
+  "model": "meta-llama/Llama-3.2-1B-Instruct",
   "method": "logistic_regression",
   "num_probes": 6,
   "probes": {
