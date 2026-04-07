@@ -25,15 +25,29 @@ conda activate llm_monitor
 
 # 3. Install dependencies
 pip install -r requirements.txt
+pip install datasets pandas tqdm huggingface_hub  # for dataset download & probe training
 
-# 4. Run a basic experiment (model auto-downloads from HuggingFace)
+# 4. Download a model (auto-downloads from HuggingFace on first use)
 python run_experiment.py \
     -q "Is AI dangerous?" \
     -t debate \
     -m Qwen/Qwen2.5-0.5B-Instruct \
     --device cuda:0
 
-# 5. Or launch the web dashboard
+# 5. Download training datasets and train probes
+python download_dataset.py                       # download real probe-training datasets
+python dataset_generator.py --target-per-class 5000  # or generate synthetic data
+python -c "
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from core.probe_trainer import MultiProbeTrainer
+model = AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')
+tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct')
+trainer = MultiProbeTrainer(model, tokenizer, 'cuda:0', data_dir='./probe_real_dataset')
+results = trainer.train_all()
+trainer.save_probes('trained_probes/Qwen_Qwen2.5-0.5B-Instruct_probes.pkl')
+"
+
+# 6. Launch the web dashboard
 python launcher.py --model Qwen/Qwen2.5-0.5B-Instruct --device cuda:0
 ```
 
@@ -115,31 +129,67 @@ python run_experiment.py -q "Is AI dangerous?" -m Qwen_Qwen2.5-0.5B-Instruct --m
 
 ### 5. Train or obtain probes
 
-Probes are linear classifiers trained on model hidden-state activations. You need probe files matching your model to use injection features.
+Probes are linear classifiers trained on model hidden-state activations. You need probe `.pkl` files matching your model to use injection and steering features.
 
-**Option A: Use pre-trained probes**
-
-Pre-trained probe metadata (`.json`) for several models is included in `trained_probes/`. The matching `.pkl` files (containing the actual probe weights) are gitignored due to size. To use injection, you need to either train your own probes or obtain the `.pkl` files.
-
-Check available probe metadata:
+**Check available probes:**
 
 ```bash
 python run_experiment.py --list-probes
 ```
 
-**Option B: Train your own probes**
+Pre-trained probe metadata (`.json`) for several models is included in `trained_probes/`. The `.pkl` weight files are gitignored due to size — you must train your own.
 
-First, prepare training data:
+**Step 1: Prepare training data**
 
 ```bash
-# Download real datasets (sycophancy, toxicity, etc.)
+# Option A: Download real datasets (Anthropic sycophancy, IMDB sentiment, etc.)
+pip install datasets pandas tqdm
 python download_dataset.py
 
-# Or generate synthetic datasets
-python dataset_generator.py
+# Option B: Generate synthetic datasets (faster, no internet required)
+python dataset_generator.py                          # all 12 categories, 50k per class
+python dataset_generator.py --target-per-class 5000  # smaller for quick testing
+python dataset_generator.py --categories sycophancy toxicity overconfidence  # specific categories
 ```
 
-Then train probes through the dashboard UI or via the `MultiProbeTrainer` API in `core/probe_trainer.py`.
+Both options output to `./probe_real_dataset/`.
+
+**Step 2: Train probes**
+
+```bash
+python -c "
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from core.probe_trainer import MultiProbeTrainer
+
+# Load your target model
+model_name = 'Qwen/Qwen2.5-0.5B-Instruct'
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# Train probes on all available dataset categories
+trainer = MultiProbeTrainer(model, tokenizer, 'cuda:0', data_dir='./probe_real_dataset')
+results = trainer.train_all()
+
+# Save probe weights (use underscore-separated model name)
+trainer.save_probes('trained_probes/Qwen_Qwen2.5-0.5B-Instruct_probes.pkl')
+"
+```
+
+> **Naming convention**: Probe files are named `{model_name}_probes.pkl` where slashes in the HuggingFace model ID are replaced with underscores (e.g., `Qwen/Qwen2.5-0.5B-Instruct` → `Qwen_Qwen2.5-0.5B-Instruct_probes.pkl`).
+
+**Step 3: Verify probes work**
+
+```bash
+# Run an experiment with injection to verify probes load correctly
+python run_experiment.py \
+    -q "Is AI dangerous?" \
+    -t debate \
+    -m Qwen/Qwen2.5-0.5B-Instruct \
+    --device cuda:0 \
+    --probe-category sycophancy \
+    --injection-type gated \
+    --injection-strength 2.0
+```
 
 ## Usage
 
@@ -303,18 +353,73 @@ Access at:
 
 ### Docker
 
-```bash
-# Build
-docker build -t llm-monitor .
+**Build the image:**
 
+```bash
+docker build -t llm-monitor .
+```
+
+**Step 1: Download a model into your host model directory**
+
+Models must be available inside the container via a volume mount. Download them on the host first, or use the container:
+
+```bash
+# Option A: Download on the host (recommended)
+mkdir -p ./models
+python -c "
+from transformers import AutoModelForCausalLM, AutoTokenizer
+AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='./models')
+AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='./models')
+"
+
+# Option B: Download via the container
+docker run --gpus all -v ./models:/models \
+  --entrypoint python llm-monitor -c \
+  "from transformers import AutoModelForCausalLM, AutoTokenizer; \
+   AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='/models'); \
+   AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='/models')"
+```
+
+**Step 2: Train probes (optional, needed for injection/steering)**
+
+```bash
+# Generate training data and train probes inside the container
+docker run --gpus all \
+  -v ./models:/models \
+  -v ./trained_probes:/app/trained_probes \
+  --entrypoint bash llm-monitor -c "\
+    python dataset_generator.py --target-per-class 5000 && \
+    python -c \"
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from core.probe_trainer import MultiProbeTrainer
+model = AutoModelForCausalLM.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='/models')
+tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B-Instruct', cache_dir='/models')
+trainer = MultiProbeTrainer(model, tokenizer, 'cuda:0', data_dir='./probe_real_dataset')
+trainer.train_all()
+trainer.save_probes('trained_probes/Qwen_Qwen2.5-0.5B-Instruct_probes.pkl')
+\""
+```
+
+**Step 3: Run the dashboard**
+
+```bash
 # Run with GPU and mounted model directory
 docker run --gpus all -p 8000:8000 \
-  -v /path/to/your/models:/models \
-  llm-monitor --model Qwen_Qwen3-4B --device cuda:0
-
-# Docker Compose (set MODEL_DIR to your local model directory)
-MODEL_DIR=/path/to/your/models docker compose up
+  -v ./models:/models \
+  -v ./trained_probes:/app/trained_probes \
+  llm-monitor --model Qwen_Qwen2.5-0.5B-Instruct --device cuda:0
 ```
+
+Access the dashboard at `http://localhost:8000/`.
+
+**Docker Compose:**
+
+```bash
+# Set MODEL_DIR to your local model directory
+MODEL_DIR=./models docker compose up
+```
+
+> **Note**: When using `--model-dir` (or Docker volume mounts), the `--model` value is a subdirectory name. Use underscores instead of slashes (e.g., `Qwen_Qwen2.5-0.5B-Instruct` instead of `Qwen/Qwen2.5-0.5B-Instruct`).
 
 ## Environment Variables
 

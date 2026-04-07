@@ -8,6 +8,8 @@ services:
     volumes:
       # Mount your model directory from the host
       - ${MODEL_DIR:-./models}:/models:ro
+      # Mount trained probes (train on host or in container, persist across restarts)
+      - ./trained_probes:/app/trained_probes
       # Persist experiment data across restarts
       - ./court_experiments.pkl:/app/court_experiments.pkl
       - ./dashboard_experiments.pkl:/app/dashboard_experiments.pkl
